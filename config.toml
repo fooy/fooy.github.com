@@ -1,0 +1,30 @@
+baseURL = "https://fooy.github.io/"
+languageCode = "en-us"
+title = "fy的技术杂碎"
+theme = "ink"
+summaryLength = 20
+disqusShortname = "fooy"
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[menu.main]]
+name = "All posts"
+url = "/posts"
+weight = 2
+
+[[menu.main]]
+name = "About"
+url = "/about"
+weight = 3
+
+[[menu.main]]
+name = "Tags"
+url = "/tags"
+weight = 4
+
+[taxonomies]
+   tag = "tags"
+
