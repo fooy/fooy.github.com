@@ -1,0 +1,10 @@
+[submodule "themes/ink"]
+	path = themes/ink
+	url = https://github.com/knadh/hugo-ink.git
+[submodule "themes/octopress"]
+	path = themes/octopress
+	url = https://github.com/parsiya/Hugo-Octopress.git
+[submodule "public/fooy.github.com"]
+	path = public/fooy.github.com
+	url = https://github.com/fooy/fooy.github.com.git
+	branch = master

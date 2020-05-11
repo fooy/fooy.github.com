@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>proxy on fy的技术杂碎</title>
+    <link>http://fooy.github.io/tags/proxy/</link>
+    <description>Recent content in proxy on fy的技术杂碎</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 18 Jun 2016 00:00:00 +0800</lastBuildDate>
+    
+	<atom:link href="http://fooy.github.io/tags/proxy/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>在R7000上配置SS &#43; TPROXY &#43; GEOIP透明代理</title>
+      <link>http://fooy.github.io/posts/setup-transparent-proxy-on-r7000/</link>
+      <pubDate>Sat, 18 Jun 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/setup-transparent-proxy-on-r7000/</guid>
+      <description>&lt;p&gt;花了一百块淘了一个很便宜的香港VPS , 几个月来连接服务还算稳定和速度, 于是想把透明代理搭起来，从此ipad上不会有一坨又一坨的404了&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on fy的技术杂碎</title>
+    <link>http://fooy.github.io/tags/</link>
+    <description>Recent content in Tags on fy的技术杂碎</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 30 Jun 2018 00:00:00 +0800</lastBuildDate>
+    
+	<atom:link href="http://fooy.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>router</title>
+      <link>http://fooy.github.io/tags/router/</link>
+      <pubDate>Sat, 30 Jun 2018 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/router/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vpn</title>
+      <link>http://fooy.github.io/tags/vpn/</link>
+      <pubDate>Sat, 30 Jun 2018 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/vpn/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>network</title>
+      <link>http://fooy.github.io/tags/network/</link>
+      <pubDate>Sat, 18 Jun 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/network/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>proxy</title>
+      <link>http://fooy.github.io/tags/proxy/</link>
+      <pubDate>Sat, 18 Jun 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/proxy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>shell</title>
+      <link>http://fooy.github.io/tags/shell/</link>
+      <pubDate>Fri, 01 Jan 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/shell/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tmux</title>
+      <link>http://fooy.github.io/tags/tmux/</link>
+      <pubDate>Fri, 01 Jan 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/tmux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vim</title>
+      <link>http://fooy.github.io/tags/vim/</link>
+      <pubDate>Wed, 01 Jan 2014 17:15:47 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/tags/vim/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

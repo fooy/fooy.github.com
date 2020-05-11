@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>在asus-merlin中配置vpn &#43; policy routing实现策略上网 - fy的技术杂碎</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta itemprop="name" content="在asus-merlin中配置vpn &#43; policy routing实现策略上网">
+<meta itemprop="description" content="摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN.">
+<meta itemprop="datePublished" content="2018-06-30T00:00:00&#43;08:00" />
+<meta itemprop="dateModified" content="2018-06-30T00:00:00&#43;08:00" />
+<meta itemprop="wordCount" content="409">
+
+
+
+<meta itemprop="keywords" content="vpn,router," /><meta property="og:title" content="在asus-merlin中配置vpn &#43; policy routing实现策略上网" />
+<meta property="og:description" content="摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/" />
+<meta property="article:published_time" content="2018-06-30T00:00:00+08:00" />
+<meta property="article:modified_time" content="2018-06-30T00:00:00+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="在asus-merlin中配置vpn &#43; policy routing实现策略上网"/>
+<meta name="twitter:description" content="摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN."/>
+<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/main.css" />
+
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="http://fooy.github.io/css/dark.css" />
+
+	
+		<script src="http://fooy.github.io/js/main.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper">
+		<div class="header">
+	
+	<h1 class="site-title"><a href="http://fooy.github.io/">fy的技术杂碎</a></h1>
+	<div class="site-description"><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post">
+			<div class="post-header">
+				
+					<div class="meta">
+						<div class="date">
+							<span class="day">30</span>
+							<span class="rest">Jun 2018</span>
+						</div>
+					</div>
+				
+				<div class="matter">
+					<h1 class="title">在asus-merlin中配置vpn &#43; policy routing实现策略上网</h1>
+				</div>
+			</div>
+					
+			<div class="markdown">
+				<p>摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN.</p>
+<p><a href="../setup-transparent-proxy-on-r7000/">上一篇</a>介绍过使用iptables配合透明代理+SS来动态转发tcp/udp的解决方案，但其中涉及到到工具SS和透明代理的概念对于很多人并不是那么熟悉和直观</p>
+<p>其实上一篇的解决方案完全可以用VPN+策略路由来代替<br>
+策略路由的好处是工作在IP层, 配合GEOIP对不同目的地址的包进行筛选标记并路由, 可以做到自定义的策略上网</p>
+<p>基本原理:
+从iptables的<a href="https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg">工作图</a>
+可以看出, IP包在经过路由决策之前会经过mangle表的PREROUTING链,我们只需要在PREROUTING链中根据一定的条件标记墙内外的IP地址,
+然后再配置路由策略根据不同的mark做出相应的路由决策即可</p>
+<p>下面是具体步骤:</p>
+<ol>
+<li>
+<p>创建VPN连接<br>
+这里我建立的是pptp类型的vpn连接，其它连接类型(openvpn,l2tp/ipsec)没有进一步实验，基本原理是一样的</p>
+<p>asus-merlin的web UI界面支持建立pptp的VPN连接,当连接建立成功后通过命令<code>ip addr</code>可以看到新建立的ppp5接口</p>
+<p><img src="/images/vpnc.png" alt=""></p>
+</li>
+<li>
+<p>使用geoip模块来标记非中国地区的IP<br>
+这里和上一篇提到的一样使用geoip模块，需要先下载数据文件<a href="dl/geoip.tar">geoipdb.bin和geoipdb.idx</a>, 拷贝到路由器上/var/geoip/目录</p>
+<p>然后使用如下命令标记non-china IP的mark为'2&rsquo;:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">iptables -t mangle -A PREROUTING -i br0 -m geoip ! --destination-country CN  -j MARK --set-mark <span style="color:#ae81ff">2</span></code></pre></div></p>
+</li>
+<li>
+<p>配置policy routing,转发被标记的IP包到VPN连接<br>
+使用如下命令把mark为'2&rsquo;的包交给table 80(任选一个空路由表)处理
+然后配置table 80的默认路由为从vpn接口转发<br>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ip rule add fwmark <span style="color:#ae81ff">2</span> table <span style="color:#ae81ff">80</span>
+ip route add default table <span style="color:#ae81ff">80</span> dev $vpn_if</code></pre></div></p>
+</li>
+<li>
+<p>为dnsmasq配置DNS路由<br>
+策略路由配置完后要考虑DNS的问题<br>
+(<strong>update: 这里是当时为了简便直接配置DNS服务器的请求走VPN路由出去绕过DNS污染，
+但是这种方式很不推荐无法解决墙外的DNS服务器返回大量不可用CDN的问题，所以这里还是要使用gfwlist+dnsmasq+ipset来搭建自己的DNS分流配置,
+详情可以搜索相关文章&hellip;</strong>)<br>
+通常情况下局域网内的设备的DNS请求是交给dnsmasq代理的(当然也可以配置dhcp下发自定义的DNS) <br>
+路由器会在每次连接ISP成功后把ISP提供的DNS服务器列表设置为dnsmasq的 <strong>上游DNS服务器</strong><br>
+并且,当连接vpn成功后,路由器也会把vpn服务器分配的DNS更新为dnsmasq的上游服务器<br>
+不管怎样，需要考虑的是，用户的DNS请求(具体是dnsmasq发起的UDP连接)走的是哪个路由转发路径<br>
+而且dnsmasq向上游服务器的请求是从路由器用户空间发出的，不会经过mangle表, 所以需要为DNS配置额外的路由<br>
+这里，为了防止DNS污染, 我在默认路由表中配置DNS走vpn线路<br>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#66d9ef">for</span> s in <span style="color:#e6db74">`</span>nvram get vpnc_dns<span style="color:#e6db74">`</span>;<span style="color:#66d9ef">do</span>
+    ip route add to $s dev $vpn_if
+<span style="color:#66d9ef">done</span></code></pre></div></p>
+</li>
+<li>
+<p>验证<br>
+当一切配置完毕就可以在局域网设备上验证路由是否正确了,<br>
+我在mac上用traceroute命令验证<br>
+可以看到qq.com和baidu.com等中文网站走的是ISP线路(10.*.*.*)
+<img src="/images/r1.png" alt=""><br>
+youtube.com走的是vpn线路(192.168.2.*)
+<img src="/images/r2.png" alt=""></p>
+<p>验证iptables命令: <code>iptables -t mangle -L -v</code><br>
+验证routing命令: <code>ip route show table 80</code> , <code>ip rule list</code></p>
+</li>
+<li>
+<p>将配置命令加入ip-up-script中<br>
+asus-merlin的vpn客户端实现都在这个<a href="https://github.com/RMerl/asuswrt-merlin/blob/master/release/src/router/rc/vpnc.c">vpnc.c</a>文件里，<br>
+可以看到每当vpn连上之后会重新覆盖默认路由,<br>
+因为vpn客户端会有多次重新连接的场景我们需要把路由配置脚本注入到vpn连接成功后的执行脚本中/tmp/ppp/vpnc-ip-up(查看/tmp/ppp/vpnc_options.pptp)<br>
+也就是每次ppp连接成功后执行策略路由脚本</p>
+</li>
+<li>
+<p>完整的脚本<br>
+使用: 在web UI中连接vpn之前先运行 <code>. /jffs/vpn.sh hook</code><br>
+( 这个脚本的作用是把配置命令写入文件:/tmp/ppp/ppp/vpnc-ip-up,这个文件会在每次vpn连接建立后运行一次执行vpn_set()中的步骤 )
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">vpn_if<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>nvram get vpnc_pppoe_ifname<span style="color:#66d9ef">)</span>
+vpn_gw<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>nvram get vpnc_gateway<span style="color:#66d9ef">)</span>
+
+PASS_MAC_LIST<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+
+vpn_clear<span style="color:#f92672">()</span>
+<span style="color:#f92672">{</span>
+ip rule list | grep <span style="color:#e6db74">&#39;lookup 80&#39;</span> | <span style="color:#66d9ef">while</span> read line;<span style="color:#66d9ef">do</span> ip rule del lookup 80;<span style="color:#66d9ef">done</span>
+ip route flush table <span style="color:#ae81ff">80</span>
+iptables -t mangle -D PREROUTING -j VIA_VPN
+iptables -t mangle -F VIA_VPN
+iptables -t mangle -X VIA_VPN
+
+<span style="color:#66d9ef">for</span> s in <span style="color:#e6db74">`</span>nvram get vpnc_dns<span style="color:#e6db74">`</span>;<span style="color:#66d9ef">do</span>
+    ip route del to $s dev $vpn_if
+<span style="color:#66d9ef">done</span>
+ip route flush cache
+<span style="color:#f92672">}</span>
+
+vpn_set<span style="color:#f92672">()</span>
+<span style="color:#f92672">{</span>
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> ! <span style="color:#e6db74">`</span>nvram get vpnc_state_t<span style="color:#e6db74">`</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;2&#34;</span> <span style="color:#f92672">]</span> ;<span style="color:#66d9ef">then</span>
+  echo <span style="color:#e6db74">&#34;VPN not connected&#34;</span>;
+  <span style="color:#66d9ef">return</span>;
+<span style="color:#66d9ef">fi</span>
+
+<span style="color:#f92672">(</span> lsmod | grep xt_geoip <span style="color:#f92672">)</span> <span style="color:#f92672">||</span> insmod xt_geoip
+
+echo <span style="color:#ae81ff">0</span> &gt; /proc/sys/net/ipv4/conf/$vpn_if/rp_filter
+
+<span style="color:#75715e">#added by vpnc.c when connected,need to delete first</span>
+ip route del default dev $vpn_if
+
+<span style="color:#75715e">#dnsmasq upstream (updated in /tmp/resolv.dnsmasq when connected) request shall go through VPN</span>
+<span style="color:#66d9ef">for</span> s in <span style="color:#e6db74">`</span>nvram get vpnc_dns<span style="color:#e6db74">`</span>;<span style="color:#66d9ef">do</span>
+    ip route add to $s dev $vpn_if
+<span style="color:#66d9ef">done</span>
+
+<span style="color:#75715e">#add default routing in table 80</span>
+ip route add default table <span style="color:#ae81ff">80</span> dev $vpn_if
+
+<span style="color:#75715e">#add ip rule</span>
+ip rule list | grep <span style="color:#e6db74">&#39;lookup 80&#39;</span> | <span style="color:#66d9ef">while</span> read line;<span style="color:#66d9ef">do</span> ip rule del lookup 80;<span style="color:#66d9ef">done</span>
+ip rule add fwmark <span style="color:#ae81ff">2</span> table <span style="color:#ae81ff">80</span>
+
+<span style="color:#75715e">#add iptables rule</span>
+iptables -t mangle -D PREROUTING -j VIA_VPN
+iptables -t mangle -N VIA_VPN
+iptables -t mangle -F VIA_VPN
+<span style="color:#66d9ef">for</span> m in $PASS_MAC_LIST;<span style="color:#66d9ef">do</span>
+    iptables -t mangle -A VIA_VPN -i br0 -m mac --mac-source $m -j RETURN
+<span style="color:#66d9ef">done</span>
+iptables -t mangle -A VIA_VPN -i br0 -m geoip ! --destination-country CN  -j MARK --set-mark <span style="color:#ae81ff">2</span>
+iptables -t mangle -A PREROUTING -j VIA_VPN
+ip route flush cache
+<span style="color:#f92672">}</span>
+
+vpn_hook<span style="color:#f92672">()</span>
+<span style="color:#f92672">{</span>
+mkdir -p /tmp/ppp/ppp
+ln -sf /sbin/rc /tmp/ppp/ppp/vpnc-ip-up
+rm /tmp/ppp/vpnc-ip-up
+cat &gt; /tmp/ppp/vpnc-ip-up &lt;&lt;!
+<span style="color:#75715e">#! /bin/sh</span>
+/tmp/ppp/ppp/vpnc-ip-up
+logger -t vpnc <span style="color:#e6db74">&#34;vpn client connected&#34;</span>
+. /jffs/vpn.sh set
+!
+chmod +x /tmp/ppp/vpnc-ip-up
+<span style="color:#f92672">}</span>
+
+eval <span style="color:#e6db74">&#34;vpn_&#34;</span>$1
+    </code></pre></div></p>
+</li>
+<li>
+<p>TODO</p>
+<ul>
+<li>可以用ipset来替代geoip</li>
+<li>当有多个vpn连接时可以在路由表中加入相应的多条默认路由实现负载均衡</li>
+</ul>
+</li>
+</ol>
+<p>参考: <br>
+- <a href="http://linux-ip.net/html/adv-multi-internet.html">http://linux-ip.net/html/adv-multi-internet.html</a><br>
+- <a href="https://superuser.com/questions/1185861/linux-routing-based-on-domain-names/">https://superuser.com/questions/1185861/linux-routing-based-on-domain-names/</a></p>
+			</div>
+
+			<div class="tags">
+				
+					
+						<ul class="flat">
+							
+							<li><a href="/tags/vpn">vpn</a></li>
+							
+							<li><a href="/tags/router">router</a></li>
+							
+						</ul>
+					
+				
+			</div></div>
+	</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div>2018  <a href="https://github.com/knadh/hugo-ink">Ink</a> theme on <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+</body>
+</html>

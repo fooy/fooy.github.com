@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>nodejs实现支持PAC的HTTP server - fy的技术杂碎</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta itemprop="name" content="nodejs实现支持PAC的HTTP server">
+<meta itemprop="description" content="HTTP代理服务支持PAC的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销">
+<meta itemprop="datePublished" content="2016-04-01T00:00:00&#43;08:00" />
+<meta itemprop="dateModified" content="2016-04-01T00:00:00&#43;08:00" />
+<meta itemprop="wordCount" content="38">
+
+
+
+<meta itemprop="keywords" content="" /><meta property="og:title" content="nodejs实现支持PAC的HTTP server" />
+<meta property="og:description" content="HTTP代理服务支持PAC的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://fooy.github.io/posts/http-proxy-with-pac/" />
+<meta property="article:published_time" content="2016-04-01T00:00:00+08:00" />
+<meta property="article:modified_time" content="2016-04-01T00:00:00+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="nodejs实现支持PAC的HTTP server"/>
+<meta name="twitter:description" content="HTTP代理服务支持PAC的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销"/>
+<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/main.css" />
+
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="http://fooy.github.io/css/dark.css" />
+
+	
+		<script src="http://fooy.github.io/js/main.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper">
+		<div class="header">
+	
+	<h1 class="site-title"><a href="http://fooy.github.io/">fy的技术杂碎</a></h1>
+	<div class="site-description"><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post">
+			<div class="post-header">
+				
+					<div class="meta">
+						<div class="date">
+							<span class="day">01</span>
+							<span class="rest">Apr 2016</span>
+						</div>
+					</div>
+				
+				<div class="matter">
+					<h1 class="title">nodejs实现支持PAC的HTTP server</h1>
+				</div>
+			</div>
+					
+			<div class="markdown">
+				<p>HTTP代理服务支持<a href="https://en.wikipedia.org/wiki/Proxy_auto-config">PAC</a>的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销</p>
+<p>( <strong>update: 这个玩具项目源于当时翻墙的痛点：代理服务器无法根据域名执行动态的代理，即使国内的网站都要走墙外服务器绕一圈回来实在是很糟糕的连接体验
+当时v2ray项目已经横空出世只是我没有发现，后来第一次打开v2ray的页面看到配置立刻理解了它的设计：v2ray中的&quot;Freedom&quot;出站协议不就是PAC中的&quot;DIRECT&quot;吗</strong>)</p>
+<p>写这段服务代码的初衷是辅助不支持pac的设备(比如我的小米手机)动态翻墙<br>
+目前很多安卓设备都不支持PAC文件，在存在局域网代理服务的情况下，设备只能做到直连/代理二选一，
+要么不停地开关代理，要么忍受通过代理服务访问国内网站的速度</p>
+<p>很自然地想到能不能把根据PAC做路径选择的功能移到代理服务器端呢</p>
+<p>搜索了一下，居然没有找到做到类似的功能的代理服务器，唯一接近的方案在<a href="https://serverfault.com/questions/198806/squid-selects-parent-depending-on-requested-url">这里</a></p>
+<p>忍不住自己实现了一把，居然基本可用</p>
+<p>PAC文件就是js文件，所以用node来实现最直观 ,从SwitchySharp中导出的pac文件直接可用</p>
+<p>node提供的stream接口实现起来代码量如此之少,只需百行代码</p>
+<p><a href="https://github.com/fooy/pacproxy">项目地址</a></p>
+<p>尝试把这个服务跑在我的刷了<a href="https://github.com/RMerl/asuswrt-merlin">asus-merlin</a>的r7000上，因为<a href="https://github.com/Entware/entware">entware</a>提供有nodejs 0.10.42的包可用</p>
+<p>merlin自从回退了<a href="https://github.com/RMerl/asuswrt-merlin/commit/72792aea89cd562242e7d80317c45ac593f1bd0c">这个修改</a>之后内存省出来好多，
+nodejs不会再抛bad_alloc内存不够的异常了
+毕竟路由器只有256M物理内存</p>
+<p>具体使用场景如下:</p>
+<ol>
+<li>在路由器上启动<code>node pacproxy.js SwitchyPac.pac</code>
+<ul>
+<li>pacproxy.js 是pacproxy.coffee编译出的js，没必要在路由器上再装一个coffee包,内存实在吃紧</li>
+<li>pacproxy.js 默认开启8080端口</li>
+<li>SwitchyPac.pac从chrome插件选项中导出即可(大部分熟练的翻墙人都装有这个插件吧)</li>
+</ul>
+</li>
+<li>设置手机代理服务器为http ://192.168.1.1:8000</li>
+</ol>
+<p>赘述下工作原理就是pacproxy.js解析http proxy请求,执行SwitchyPac.pac中的FindProxyForURL函数：</p>
+<ul>
+<li>返回DIRECT,就直接代理</li>
+<li>返回SOCKS5://.. ,就进一步转发给路由器上的socks5服务(ss-local)端口</li>
+<li>返回PROXY://..,就转发给其它http代理服务器</li>
+</ul>
+<p>其实这个项目可以做进一步扩展,考虑添加一个内置UI界面,可以提供类似Switchy的代理规则匹配和目标的动态修改.</p>
+			</div>
+
+			<div class="tags">
+				
+					
+				
+			</div></div>
+	</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div>2016  <a href="https://github.com/knadh/hugo-ink">Ink</a> theme on <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+</body>
+</html>

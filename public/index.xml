@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>fy的技术杂碎</title>
+    <link>http://fooy.github.io/</link>
+    <description>Recent content on fy的技术杂碎</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 30 Jun 2018 00:00:00 +0800</lastBuildDate>
+    
+	<atom:link href="http://fooy.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>在asus-merlin中配置vpn &#43; policy routing实现策略上网</title>
+      <link>http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</link>
+      <pubDate>Sat, 30 Jun 2018 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</guid>
+      <description>&lt;p&gt;摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>在R7000上配置SS &#43; TPROXY &#43; GEOIP透明代理</title>
+      <link>http://fooy.github.io/posts/setup-transparent-proxy-on-r7000/</link>
+      <pubDate>Sat, 18 Jun 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/setup-transparent-proxy-on-r7000/</guid>
+      <description>&lt;p&gt;花了一百块淘了一个很便宜的香港VPS , 几个月来连接服务还算稳定和速度, 于是想把透明代理搭起来，从此ipad上不会有一坨又一坨的404了&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>UDP透明代理的报文重定向</title>
+      <link>http://fooy.github.io/posts/how-udp-transparent-proxy-work/</link>
+      <pubDate>Fri, 17 Jun 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/how-udp-transparent-proxy-work/</guid>
+      <description>&lt;p&gt;这两天想把路由器上的透明代理搭起来，在搜索了一些使用iptables配合ss-redir的命令之后，我被一个疑问困住了：&lt;br&gt;
+&lt;strong&gt;iptable在nat表PREROUTING链对协议报文做重定向之后，代理服务是如何知道报文的目的地址/端口的?&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>nodejs实现支持PAC的HTTP server</title>
+      <link>http://fooy.github.io/posts/http-proxy-with-pac/</link>
+      <pubDate>Fri, 01 Apr 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/http-proxy-with-pac/</guid>
+      <description>&lt;p&gt;HTTP代理服务支持&lt;a href=&#34;https://en.wikipedia.org/wiki/Proxy_auto-config&#34;&gt;PAC&lt;/a&gt;的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>set tmux title in shell</title>
+      <link>http://fooy.github.io/posts/set-tmux-title-in-shell/</link>
+      <pubDate>Fri, 01 Jan 2016 00:00:00 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/set-tmux-title-in-shell/</guid>
+      <description>&lt;p&gt;change window title dynamically in tmux&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>使用bison实现简单的表达式</title>
+      <link>http://fooy.github.io/posts/simple-expr-using-bison/</link>
+      <pubDate>Tue, 16 Jun 2015 02:31:48 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/simple-expr-using-bison/</guid>
+      <description>&lt;p&gt;在这家公司混日子这么久，最近不幸被领导抓壮丁拉来做一个项目，其中一块功能需要表达式解析功能&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>编译windows运行环境下的vim</title>
+      <link>http://fooy.github.io/posts/compile-vim-for-win/</link>
+      <pubDate>Wed, 01 Jan 2014 17:15:47 +0800</pubDate>
+      
+      <guid>http://fooy.github.io/posts/compile-vim-for-win/</guid>
+      <description>&lt;p&gt;整理下在windows环境中编译vim的主要步骤:&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>http://fooy.github.io/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://fooy.github.io/about/</guid>
+      <description>null</description>
+    </item>
+    
+  </channel>
+</rss>

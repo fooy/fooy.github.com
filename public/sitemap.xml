@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://fooy.github.io/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/router/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/vpn/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</loc>
+    <lastmod>2018-06-30T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/network/</loc>
+    <lastmod>2016-06-18T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/proxy/</loc>
+    <lastmod>2016-06-18T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/setup-transparent-proxy-on-r7000/</loc>
+    <lastmod>2016-06-18T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/how-udp-transparent-proxy-work/</loc>
+    <lastmod>2016-06-17T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/http-proxy-with-pac/</loc>
+    <lastmod>2016-04-01T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/set-tmux-title-in-shell/</loc>
+    <lastmod>2016-01-01T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/shell/</loc>
+    <lastmod>2016-01-01T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/tmux/</loc>
+    <lastmod>2016-01-01T00:00:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/simple-expr-using-bison/</loc>
+    <lastmod>2015-06-16T02:31:48+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/tags/vim/</loc>
+    <lastmod>2014-01-01T17:15:47+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/posts/compile-vim-for-win/</loc>
+    <lastmod>2014-01-01T17:15:47+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/about/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://fooy.github.io/fooy/</loc>
+  </url>
+  
+</urlset>
