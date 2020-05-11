@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>vpn on fy的技术杂碎</title>
-    <link>http://fooy.github.io/tags/vpn/</link>
+    <link>https://fooy.github.io/tags/vpn/</link>
     <description>Recent content in vpn on fy的技术杂碎</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 30 Jun 2018 00:00:00 +0800</lastBuildDate>
     
-	<atom:link href="http://fooy.github.io/tags/vpn/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://fooy.github.io/tags/vpn/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>在asus-merlin中配置vpn &#43; policy routing实现策略上网</title>
-      <link>http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</link>
+      <link>https://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</link>
       <pubDate>Sat, 30 Jun 2018 00:00:00 +0800</pubDate>
       
-      <guid>http://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</guid>
+      <guid>https://fooy.github.io/posts/asus-merlin-vpn-geoip-routing/</guid>
       <description>&lt;p&gt;摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN.&lt;/p&gt;</description>
     </item>
     

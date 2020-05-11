@@ -14,27 +14,27 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="nodejs实现支持PAC的HTTP server" />
 <meta property="og:description" content="HTTP代理服务支持PAC的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://fooy.github.io/posts/http-proxy-with-pac/" />
+<meta property="og:url" content="https://fooy.github.io/posts/http-proxy-with-pac/" />
 <meta property="article:published_time" content="2016-04-01T00:00:00+08:00" />
 <meta property="article:modified_time" content="2016-04-01T00:00:00+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nodejs实现支持PAC的HTTP server"/>
 <meta name="twitter:description" content="HTTP代理服务支持PAC的好处是,可以根据URL动态的决定转发连接路径,节约不必要的路径开销"/>
 <link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="http://fooy.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/main.css" />
 
-        <link id="dark-scheme" rel="stylesheet" type="text/css" href="http://fooy.github.io/css/dark.css" />
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="https://fooy.github.io/css/dark.css" />
 
 	
-		<script src="http://fooy.github.io/js/main.js"></script>
+		<script src="https://fooy.github.io/js/main.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper">
 		<div class="header">
 	
-	<h1 class="site-title"><a href="http://fooy.github.io/">fy的技术杂碎</a></h1>
+	<h1 class="site-title"><a href="https://fooy.github.io/">fy的技术杂碎</a></h1>
 	<div class="site-description"><nav class="nav social">
 			<ul class="flat"></ul>
 		</nav></div>
@@ -119,7 +119,23 @@ nodejs不会再抛bad_alloc内存不够的异常了
 				
 					
 				
-			</div></div>
+			</div><div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'fooy';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the </a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
 	</div>
 	<div class="footer wrapper">
 	<nav class="nav">
