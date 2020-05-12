@@ -7,7 +7,7 @@
 <meta itemprop="description" content="摘要:使用geoip来标记国/内外的IP地址，并用策略路由来分流到VPN.">
 <meta itemprop="datePublished" content="2018-06-30T00:00:00&#43;08:00" />
 <meta itemprop="dateModified" content="2018-06-30T00:00:00&#43;08:00" />
-<meta itemprop="wordCount" content="409">
+<meta itemprop="wordCount" content="406">
 
 
 
@@ -145,7 +145,6 @@ asus-merlin的vpn客户端实现都在这个<a href="https://github.com/RMerl/as
 <li>
 <p>完整的脚本<br>
 使用: 在web UI中连接vpn之前先运行 <code>. /jffs/vpn.sh hook</code><br>
-( 这个脚本的作用是把配置命令写入文件:/tmp/ppp/ppp/vpnc-ip-up,这个文件会在每次vpn连接建立后运行一次执行vpn_set()中的步骤 )
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">vpn_if<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>nvram get vpnc_pppoe_ifname<span style="color:#66d9ef">)</span>
 vpn_gw<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>nvram get vpnc_gateway<span style="color:#66d9ef">)</span>
 
