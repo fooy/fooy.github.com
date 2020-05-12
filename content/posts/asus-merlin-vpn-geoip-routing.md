@@ -81,7 +81,6 @@ done
 
 7. 完整的脚本  
     使用: 在web UI中连接vpn之前先运行 `. /jffs/vpn.sh hook`  
-    ( 这个脚本的作用是把配置命令写入文件:/tmp/ppp/ppp/vpnc-ip-up,这个文件会在每次vpn连接建立后运行一次执行vpn_set()中的步骤 )
     {{< highlight bash >}}
 vpn_if=$(nvram get vpnc_pppoe_ifname)
 vpn_gw=$(nvram get vpnc_gateway)
