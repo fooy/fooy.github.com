@@ -6,10 +6,19 @@
     <description>Recent content on fy的技术杂碎</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 30 Jun 2018 00:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 13 Sep 2019 00:00:00 +0800</lastBuildDate>
     
 	<atom:link href="https://fooy.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>ffmpeg快速生成预览贴图</title>
+      <link>https://fooy.github.io/posts/ffmpeg-fast-mosaic-preview/</link>
+      <pubDate>Fri, 13 Sep 2019 00:00:00 +0800</pubDate>
+      
+      <guid>https://fooy.github.io/posts/ffmpeg-fast-mosaic-preview/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>在asus-merlin中配置vpn &#43; policy routing实现策略上网</title>

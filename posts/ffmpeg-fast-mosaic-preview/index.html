@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>ffmpeg快速生成预览贴图 - fy的技术杂碎</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta itemprop="name" content="ffmpeg快速生成预览贴图">
+<meta itemprop="description" content="">
+<meta itemprop="datePublished" content="2019-09-13T00:00:00&#43;08:00" />
+<meta itemprop="dateModified" content="2019-09-13T00:00:00&#43;08:00" />
+<meta itemprop="wordCount" content="153">
+
+
+
+<meta itemprop="keywords" content="ffmpeg," /><meta property="og:title" content="ffmpeg快速生成预览贴图" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://fooy.github.io/posts/ffmpeg-fast-mosaic-preview/" />
+<meta property="article:published_time" content="2019-09-13T00:00:00+08:00" />
+<meta property="article:modified_time" content="2019-09-13T00:00:00+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ffmpeg快速生成预览贴图"/>
+<meta name="twitter:description" content=""/>
+<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/main.css" />
+
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="https://fooy.github.io/css/dark.css" />
+
+	
+		<script src="https://fooy.github.io/js/main.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper">
+		<div class="header">
+	
+	<h1 class="site-title"><a href="https://fooy.github.io/">fy的技术杂碎</a></h1>
+	<div class="site-description"><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post">
+			<div class="post-header">
+				
+					<div class="meta">
+						<div class="date">
+							<span class="day">13</span>
+							<span class="rest">Sep 2019</span>
+						</div>
+					</div>
+				
+				<div class="matter">
+					<h1 class="title">ffmpeg快速生成预览贴图</h1>
+				</div>
+			</div>
+					
+			<div class="markdown">
+				<p>搜索下如何用ffmpeg截取视频快照,看到有很多的办法是使用<code>-vf &quot;select=..&quot;</code>,这种办法的好处是可以定制更丰富的截屏条件，对桢的控制也更精确，
+但是无法忍受的一点是,使用<code>-vf </code>,ffmpeg是需要对输入的视频逐帧解码的，想象一个视频只需要在01:00:00处截图一次却要耗费大量cpu把前面所有的帧解一次，
+况且笔记本CPU不行解码速度远小于正常播放速度,多文件批处理的情况下等待时间恐怕是要按天来算了</p>
+<p>一个更简单的方式是使用<code>-ss</code>选项，ffmpeg根据这个传入的时间参数快速定位到指定的帧, 类似于在播放器界面上拖动视频进度条到指定位置的效果<br>
+<code>-ss</code>选项对每个文件只能生效一次，能否利用这个选项生成常见的那种视频的多图预览的瓷砖效果呢,当然是可以的:</p>
+<ul>
+<li>多次对同一个文件使用-ss定位到一个时间N，生成 截屏_N.png</li>
+<li>把多个文件合并起来，使用tile 或者xstack 等filter把图片合成一张,比如: <code>ffmpeg -i 截屏_1.png -i 截屏_2.png ... -vf &quot;tile=..&quot;</code><br>
+参考<a href="https://stackoverflow.com/questions/24604689/how-to-join-two-images-into-one-with-ffmpeg">这里</a></li>
+</ul>
+<p>作为一个命令行洁癖患者看到有中间文件生成就感觉不适，能不能在一个命令中完成呢，ffmpeg如此强大，这点需求完全是小意思,
+用<a href="https://ffmpeg.org/ffmpeg-filters.html#Filtergraph-description">filtergraph</a>把各种filter搭配在一起就可以<br>
+做个测试确认ffmpeg是可以接收多个<code>-ss &lt;TIME&gt; -i &lt;FILE&gt;</code>这种格式的，相当与一个命令中可以多次读取同一个文件定位到不同的位置作为多个输入，并且在filtergraph中引用这些输入并进一步处理合并</p>
+<p>比如下面的命令可以生产12帧的电影截图:
+<img src="/images/ffmpeg1.png" alt="">
+<img src="/images/ffmpeg2.png" alt=""></p>
+<p>每个视频的截图时间是一个列表参数比如[5,60,300,&hellip;]秒, 凑出对应的命令是需要一点编程的, 下面就是用来生成以上4x3预览图片的脚本.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#! /bin/bash
+</span><span style="color:#75715e"></span>FFMPEG<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ffmpeg -nostdin -loglevel error -nostats&#34;</span>
+INFILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>
+OUTFILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>2<span style="color:#66d9ef">:-</span>$1.png<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+
+<span style="color:#f92672">[</span> -z <span style="color:#e6db74">&#34;INFILE&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> exit 1;
+
+DURATION<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>ffprobe -loglevel error -show_entries format<span style="color:#f92672">=</span>duration -of default<span style="color:#f92672">=</span>nw<span style="color:#f92672">=</span>1:nk<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> <span style="color:#e6db74">&#34;</span>$INFILE<span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">)</span>
+DURATION<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>DURATION%.*<span style="color:#e6db74">}</span>
+
+<span style="color:#f92672">[[</span> ! $DURATION <span style="color:#f92672">=</span>~ ^<span style="color:#f92672">[</span>0-9<span style="color:#f92672">]</span>+$ <span style="color:#f92672">]]</span> <span style="color:#f92672">&amp;&amp;</span> exit <span style="color:#ae81ff">1</span>
+
+echo <span style="color:#e6db74">&#34;duration is </span>$DURATION<span style="color:#e6db74"> s&#34;</span>
+NSHOT<span style="color:#f92672">=</span><span style="color:#ae81ff">12</span>
+COL<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+SHOTS<span style="color:#f92672">=(</span>0<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $DURATION -ge $NSHOT <span style="color:#f92672">]</span> ;<span style="color:#66d9ef">then</span>
+    SEG<span style="color:#f92672">=</span><span style="color:#66d9ef">$((</span>$DURATION<span style="color:#f92672">/</span>$NSHOT<span style="color:#66d9ef">))</span>
+    SHOTS<span style="color:#f92672">=(</span><span style="color:#66d9ef">$(</span>seq <span style="color:#ae81ff">0</span> $SEG $DURATION<span style="color:#66d9ef">)</span><span style="color:#f92672">)</span>
+    SHOTS<span style="color:#f92672">=(</span><span style="color:#e6db74">${</span>SHOTS[@]:1<span style="color:#e6db74">}</span><span style="color:#f92672">)</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $SEG -ge <span style="color:#ae81ff">300</span> <span style="color:#f92672">]</span>;<span style="color:#66d9ef">then</span>
+        SHOTS<span style="color:#f92672">=(</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">30</span> <span style="color:#ae81ff">90</span> <span style="color:#ae81ff">180</span> <span style="color:#e6db74">${</span>SHOTS[@]<span style="color:#e6db74">}</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">elif</span> <span style="color:#f92672">[</span> $SEG -ge <span style="color:#ae81ff">150</span> <span style="color:#f92672">]</span>;<span style="color:#66d9ef">then</span>
+        SHOTS<span style="color:#f92672">=(</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">30</span> <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">100</span> <span style="color:#e6db74">${</span>SHOTS[@]<span style="color:#e6db74">}</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">elif</span> <span style="color:#f92672">[</span> $SEG -ge <span style="color:#ae81ff">60</span> <span style="color:#f92672">]</span>;<span style="color:#66d9ef">then</span>
+        SHOTS<span style="color:#f92672">=(</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">40</span> <span style="color:#e6db74">${</span>SHOTS[@]<span style="color:#e6db74">}</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">fi</span>
+<span style="color:#66d9ef">fi</span>
+echo <span style="color:#e6db74">&#34;Screenshots: </span><span style="color:#e6db74">${</span>SHOTS[@]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+
+SCALE<span style="color:#f92672">=</span>1000:-1
+PADS<span style="color:#f92672">=([{</span>a..z<span style="color:#f92672">}]</span> <span style="color:#f92672">[{</span>A..Z<span style="color:#f92672">}])</span>
+NFRAME<span style="color:#f92672">=</span><span style="color:#e6db74">${#</span>SHOTS[@]<span style="color:#e6db74">}</span>
+
+OPT_SEEK<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+OPT_FILTER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">for</span> t in <span style="color:#e6db74">${</span>SHOTS[@]<span style="color:#e6db74">}</span> ;<span style="color:#66d9ef">do</span> 
+    OPT_SEEK<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>OPT_SEEK<span style="color:#e6db74">}</span><span style="color:#e6db74"> -ss </span>$t<span style="color:#e6db74"> -i &#39;</span>$INFILE<span style="color:#e6db74">&#39;&#34;</span>
+    OPT_FILTER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>OPT_FILTER<span style="color:#e6db74">}</span><span style="color:#e6db74">[</span>$i<span style="color:#e6db74">:v]trim=start_frame=1:end_frame=2</span><span style="color:#e6db74">${</span>PADS[$i]<span style="color:#e6db74">}</span><span style="color:#e6db74">;&#34;</span>
+    i<span style="color:#f92672">=</span><span style="color:#66d9ef">$((</span><span style="color:#f92672">++</span>i<span style="color:#66d9ef">))</span>
+<span style="color:#66d9ef">done</span>
+OPT_FILTER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>OPT_FILTER<span style="color:#e6db74">}${</span>PADS[@]:0:$i<span style="color:#e6db74">}</span><span style="color:#e6db74">concat=n=</span>$i<span style="color:#e6db74">,tile=</span><span style="color:#e6db74">${</span>COL<span style="color:#e6db74">}</span><span style="color:#e6db74">x</span><span style="color:#66d9ef">$((</span>$NFRAME<span style="color:#f92672">/</span>$COL<span style="color:#f92672">+((</span>$NFRAME<span style="color:#f92672">%</span>$COL<span style="color:#f92672">)</span>!<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span><span style="color:#66d9ef">))</span><span style="color:#e6db74">),scale=</span>$SCALE<span style="color:#e6db74">&#34;</span>
+
+eval <span style="color:#e6db74">&#34;</span>$FFMPEG<span style="color:#e6db74"> </span>$OPT_SEEK<span style="color:#e6db74"> -filter_complex &#39;</span>$OPT_FILTER<span style="color:#e6db74">&#39; -y &#39;</span>$OUTFILE<span style="color:#e6db74">&#39;&#34;</span></code></pre></div>
+<p>一点说明:</p>
+<ul>
+<li>要定制截图的多个时间点需要先得到视频总时长，这里用<code>ffprobe</code>来获取,参考<a href="https://superuser.com/questions/650291/how-to-get-video-duration-in-seconds">这里</a></li>
+<li>原则上把视频按照截图数N拆时间间隔，但是我觉得影片前面5-10分钟更重要所以额外定制前面4帧</li>
+<li>这种截屏的好处是运行很快，生成图片过程基本是按秒来计, 一点不足是据说<code>-ss</code>的时间定位并不完全精确但也够用了</li>
+</ul>
+			</div>
+
+			<div class="tags">
+				
+					
+						<ul class="flat">
+							
+							<li><a href="/tags/ffmpeg">ffmpeg</a></li>
+							
+						</ul>
+					
+				
+			</div><div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'fooy';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the </a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div>2019  <a href="https://github.com/knadh/hugo-ink">Ink</a> theme on <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+</body>
+</html>
