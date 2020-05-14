@@ -95,7 +95,7 @@
 <p>比如下面的命令可以生产12帧的电影截图:
 <img src="/images/ffmpeg1.png" alt="">
 <img src="/images/ffmpeg2.png" alt=""></p>
-<p>每个视频的截图时间是一个列表参数比如[5,60,300,&hellip;]秒, 凑出对应的命令是需要一点编程的, 下面就是用来生成以上4x3预览图片的脚本.</p>
+<p>每个视频的截图时间是一个列表参数比如[5,60,300,&hellip;]秒, 凑出对应的命令是需要一点编程的, 下面就是用来生成以上4x4预览图片的脚本.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#! /bin/bash
 </span><span style="color:#75715e"></span>FFMPEG<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ffmpeg -nostdin -loglevel error -nostats&#34;</span>
 INFILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>
@@ -145,7 +145,7 @@ eval <span style="color:#e6db74">&#34;</span>$FFMPEG<span style="color:#e6db74">
 <p>一点说明:</p>
 <ul>
 <li>要定制截图的多个时间点需要先得到视频总时长，这里用<code>ffprobe</code>来获取,参考<a href="https://superuser.com/questions/650291/how-to-get-video-duration-in-seconds">这里</a></li>
-<li>原则上把视频按照截图数N拆时间间隔，但是我觉得影片前面5-10分钟更重要所以额外定制前面4帧</li>
+<li>视频按12等分间隔取时间点,我觉得影片前面5-10分钟更重要所以额外定制前面4帧</li>
 <li>这种截屏的好处是运行很快，生成图片过程基本是按秒来计, 一点不足是据说<code>-ss</code>的时间定位并不完全精确但也够用了</li>
 </ul>
 			</div>
