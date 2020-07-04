@@ -20,7 +20,7 @@ tags: [ ffmpeg ]
 用[filtergraph](https://ffmpeg.org/ffmpeg-filters.html#Filtergraph-description)把各种filter搭配在一起就可以  
 做个测试确认ffmpeg是可以接收多个`-ss <TIME> -i <FILE>`这种格式的，相当与一个命令中可以多次读取同一个文件定位到不同的位置作为多个输入，并且在filtergraph中引用这些输入并进一步处理合并
 
-比如下面的命令可以生产12帧的电影截图:
+比如下面的命令可以生产16帧的电影截图:
 ![](/images/ffmpeg1.png)
 ![](/images/ffmpeg2.png)
 
