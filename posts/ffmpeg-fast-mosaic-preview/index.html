@@ -92,7 +92,7 @@
 <p>作为一个命令行洁癖患者看到有中间文件生成就感觉不适，能不能在一个命令中完成呢，ffmpeg如此强大，这点需求完全是小意思,
 用<a href="https://ffmpeg.org/ffmpeg-filters.html#Filtergraph-description">filtergraph</a>把各种filter搭配在一起就可以<br>
 做个测试确认ffmpeg是可以接收多个<code>-ss &lt;TIME&gt; -i &lt;FILE&gt;</code>这种格式的，相当与一个命令中可以多次读取同一个文件定位到不同的位置作为多个输入，并且在filtergraph中引用这些输入并进一步处理合并</p>
-<p>比如下面的命令可以生产12帧的电影截图:
+<p>比如下面的命令可以生产16帧的电影截图:
 <img src="/images/ffmpeg1.png" alt="">
 <img src="/images/ffmpeg2.png" alt=""></p>
 <p>每个视频的截图时间是一个列表参数比如[5,60,300,&hellip;]秒, 凑出对应的命令是需要一点编程的, 下面就是用来生成以上4x4预览图片的脚本.</p>

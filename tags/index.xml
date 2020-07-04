@@ -6,10 +6,37 @@
     <description>Recent content in Tags on fy的技术杂碎</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 13 Sep 2019 00:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 30 Jun 2020 00:00:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fooy.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>v2ray</title>
+      <link>https://fooy.github.io/tags/v2ray/</link>
+      <pubDate>Tue, 30 Jun 2020 00:00:03 +0800</pubDate>
+      
+      <guid>https://fooy.github.io/tags/v2ray/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CoreElec</title>
+      <link>https://fooy.github.io/tags/coreelec/</link>
+      <pubDate>Tue, 30 Jun 2020 00:00:02 +0800</pubDate>
+      
+      <guid>https://fooy.github.io/tags/coreelec/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>https://fooy.github.io/tags/linux/</link>
+      <pubDate>Tue, 30 Jun 2020 00:00:02 +0800</pubDate>
+      
+      <guid>https://fooy.github.io/tags/linux/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>ffmpeg</title>

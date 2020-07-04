@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>使用CoreElec的RAID1实践 - fy的技术杂碎</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta itemprop="name" content="使用CoreElec的RAID1实践">
+<meta itemprop="description" content="">
+<meta itemprop="datePublished" content="2020-06-30T00:00:02&#43;08:00" />
+<meta itemprop="dateModified" content="2020-06-30T00:00:02&#43;08:00" />
+<meta itemprop="wordCount" content="431">
+
+
+
+<meta itemprop="keywords" content="CoreElec,linux," /><meta property="og:title" content="使用CoreElec的RAID1实践" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://fooy.github.io/posts/coreelec-raid10/" />
+<meta property="article:published_time" content="2020-06-30T00:00:02+08:00" />
+<meta property="article:modified_time" content="2020-06-30T00:00:02+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="使用CoreElec的RAID1实践"/>
+<meta name="twitter:description" content=""/>
+<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/main.css" />
+
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="https://fooy.github.io/css/dark.css" />
+
+	
+		<script src="https://fooy.github.io/js/main.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper">
+		<div class="header">
+	
+	<h1 class="site-title"><a href="https://fooy.github.io/">fy的技术杂碎</a></h1>
+	<div class="site-description"><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post">
+			<div class="post-header">
+				
+					<div class="meta">
+						<div class="date">
+							<span class="day">30</span>
+							<span class="rest">Jun 2020</span>
+						</div>
+					</div>
+				
+				<div class="matter">
+					<h1 class="title">使用CoreElec的RAID1实践</h1>
+				</div>
+			</div>
+					
+			<div class="markdown">
+				<p>最近打算使用N1+CoreElec做长期网盘，我有两块10年左右的硬盘闲置许久，适合接上N1做存储，这样也算是和N1百元盒子物尽其用的精神十分契合.
+但这两块硬盘出厂确实有些年头, 考虑到数据面临的&quot;崩盘&quot;风险，正好可以利用这个机会折腾下Linux的Soft RAID.</p>
+<p>N1盒子上仅有两个USB接口, 查资料简单评估觉得适合做RAID1, 能够承担一个硬盘故障的风险，看到网络上对RAID的可靠性有一定质疑,
+以及对<a href="https://serverfault.com/questions/77710/is-bit-rot-on-hard-drives-a-real-problem-what-can-be-done-about-it">bitrot</a>的讨论，
+总体感觉个人简单使用还是能提供一定的保护的,决定实践一把让这两块硬盘接收时间的检验.</p>
+<h4 id="编译">编译:</h4>
+<p>CoreElec的编译过程在<a href="../n1-coreelec-install/">上篇</a>有所提及，这里只列出RAID相关的编译配置部分.</p>
+<ol>
+<li>
+<p>修改内核编译配置加入raid0,1,4,5,6支持<br>
+projects/Amlogic/linux/linux.aarch64.conf
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#a6e22e">+CONFIG_BLK_DEV_MD=m
+</span><span style="color:#a6e22e">+CONFIG_MD_LINEAR=m
+</span><span style="color:#a6e22e">+CONFIG_MD_RAID0=m
+</span><span style="color:#a6e22e">+CONFIG_MD_RAID1=m
+</span><span style="color:#a6e22e">+CONFIG_MD_RAID10=m
+</span><span style="color:#a6e22e">+CONFIG_MD_RAID456=m
+</span><span style="color:#a6e22e">+CONFIG_DM_RAID=m
+</span><span style="color:#a6e22e">+CONFIG_ASYNC_CORE=m
+</span><span style="color:#a6e22e">+CONFIG_ASYNC_MEMCPY=m
+</span><span style="color:#a6e22e">+CONFIG_ASYNC_XOR=m
+</span><span style="color:#a6e22e">+CONFIG_ASYNC_PQ=m
+</span><span style="color:#a6e22e">+CONFIG_ASYNC_RAID6_RECOV=m
+</span></code></pre></div></p>
+</li>
+<li>
+<p>加入mdadm编译安装包文件，这里使用4.0版本<br>
+packages/sysutils/mdadm/package.mk
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#a6e22e">+PKG_NAME=&#34;mdadm&#34;
+</span><span style="color:#a6e22e">+PKG_VERSION=&#34;4.0&#34;
+</span><span style="color:#a6e22e">+PKG_ARCH=&#34;any&#34;
+</span><span style="color:#a6e22e">+PKG_LICENSE=&#34;LGPLv2&#34;
+</span><span style="color:#a6e22e">+PKG_SITE=&#34;http://neil.brown.name/blog/mdadm&#34;
+</span><span style="color:#a6e22e">+PKG_URL=&#34;http://www.kernel.org/pub/linux/utils/raid/$PKG_NAME/$PKG_NAME-$PKG_VERSION.tar.gz&#34;
+</span><span style="color:#a6e22e">+PKG_DEPENDS_TARGET=&#34;toolchain systemd&#34;
+</span><span style="color:#a6e22e">+PKG_SECTION=&#34;system&#34;
+</span><span style="color:#a6e22e">+PKG_SHORTDESC=&#34;mdadm: manager for raid arrays&#34;
+</span><span style="color:#a6e22e">+PKG_LONGDESC=&#34;mdadm is a tool for managing Linux Software RAID arrays.&#34;
+</span><span style="color:#a6e22e">+PKG_IS_ADDON=&#34;no&#34;
+</span><span style="color:#a6e22e">+PKG_AUTORECONF=&#34;no&#34;
+</span><span style="color:#a6e22e">+
+</span><span style="color:#a6e22e">+pre_configure_target() {
+</span><span style="color:#a6e22e">+  export CFLAGS+=&#34;  -Wno-implicit-fallthrough&#34;
+</span><span style="color:#a6e22e">+  STRIP=&#34;--strip --strip-program=$STRIP&#34;
+</span><span style="color:#a6e22e">+  PKG_MAKE_OPTS_TARGET=&#34;SYSCONFDIR=/storage/.config CC=$CC CWFLAGS=&#34;
+</span><span style="color:#a6e22e">+  PKG_MAKEINSTALL_OPTS_TARGET=&#34;SYSTEMD_DIR=/usr/lib/systemd/system BINDIR=/usr/sbin install-systemd&#34;
+</span><span style="color:#a6e22e">+}
+</span></code></pre></div></p>
+</li>
+<li>
+<p>加入busybox依赖安装到文件系统<br>
+packages/sysutils/busybox/package.mk
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#f92672">-PKG_DEPENDS_TARGET=&#34;toolchain busybox:host hdparm dosfstools e2fsprogs zip unzip usbutils parted procps-ng gptfdisk libtirpc&#34;
+</span><span style="color:#f92672"></span><span style="color:#a6e22e">+PKG_DEPENDS_TARGET=&#34;toolchain busybox:host hdparm dosfstools e2fsprogs zip unzip usbutils parted procps-ng gptfdisk libtirpc mdadm&#34;
+</span></code></pre></div></p>
+</li>
+</ol>
+<p>重新编译系统生成的img文件中已经包含所需的模块.</p>
+<h4 id="coreelec配置">CoreElec配置:</h4>
+<ul>
+<li>
+<p>设置raid10模块在系统启动时载入，如果上一步raid相关内核配置为Y这一步可以省去
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~/.config/modules-load.d # echo raid10 &gt; raid.conf</code></pre></div></p>
+</li>
+<li>
+<p>查看mdadm的所有安装文件，可以看到mdadm附带了很多有用的自动配置文件，包括处理热插拔相关的udev规则，和udev规则配合的systemd任务
+比如:</p>
+<ul>
+<li>mdmonitor.service 启动常驻进程监控raid的健康情况并在异常发生后发出邮件</li>
+<li>mdadm-last-resort@.service 在磁盘故障时也能加载部分可用的磁盘</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">root@776f0f3b8d0f:/app/CoreELEC/build.CoreELEC-Phicomm-N1.arm-9.2.1/mdadm-4.0/.install_pkg# find . -type f
+./usr/sbin/mdadm
+./usr/sbin/mdmon
+./usr/lib/systemd/system/mdadm-grow-continue@.service
+./usr/lib/systemd/system/mdmon@.service
+./usr/lib/systemd/system/mdadm-last-resort@.timer
+./usr/lib/systemd/system/mdmonitor.service
+./usr/lib/systemd/system/mdadm-last-resort@.service
+./usr/lib/systemd/system-shutdown/mdadm.shutdown
+./usr/lib/udev/rules.d/64-md-raid-assembly.rules
+./usr/lib/udev/rules.d/63-md-raid-arrays.rules</code></pre></div>
+<ul>
+<li>mdadm进程默认的监控功能是调用/usr/bin/sendmail来发送邮件，Coreelec文件系统中并不包含这个古老的命令路径, 可以使用兼容的替代<code>msmtp</code>,
+从entware安装:</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~/.config/system.d # opkg install msmtp
+Package msmtp (1.8.10-1) installed in root is up to date.</code></pre></div>
+<ul>
+<li>修改mdadm4.0代码中某处的宏定义把<code>/usr/bin/sendmail</code>改为<code>/opt/bin/msmtp</code>后，把编译重新生成的mdadm拷贝到盒子上, 这里是利用CoreElec(LibReelec)支持用户目录自定义配置(systemd,udev,etc)覆盖系统只读路径下的同名配置的功能，在自定义配置中使用修改过邮件发送命令路径的<code>/storage/bin/mdadm</code> 同时加入邮件地址参数选项<code>--mail</code>, 这样mdmonitor任务就可以把故障邮件发送到自定义的邮箱:</li>
+</ul>
+<p><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">CoreELEC:~/.config/system.d # diff mdmonitor.service /usr/lib/systemd/system/mdmonitor.service
+19c16
+&lt; ExecStart=/storage/bin/mdadm --monitor $MDADM_MONITOR_ARGS --mail ??@qq.com
+<span style="color:#f92672">---
+</span><span style="color:#f92672"></span>&gt; ExecStart=/usr/sbin/mdadm --monitor $MDADM_MONITOR_ARGS
+</code></pre></div>
+覆盖的systemd任务重新装载即可:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">systemctl daemon-reload
+<span style="color:#75715e">#udevadm trigger</span>
+systemctl restart mdmonitor.service</code></pre></div></p>
+<h4 id="测试">测试:</h4>
+<ul>
+<li>
+<p>创建raid1(far2):
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~ # ./mdadm --create --verbose --level=10 --metadata=1.2 --chunk=512 --raid-devices=2 --layout=f2 /dev/md/MyRAID10Array /dev/sda1 /dev/sdb1
+CoreELEC:~ # cat /proc/mdstat
+Personalities : [raid0] [raid1] [raid10] [raid6] [raid5] [raid4]
+md127 : active raid10 sdb1[1] sda1[0]
+      312438784 blocks super 1.2 512K chunks 2 far-copies [2/2] [UU]
+      [&gt;....................]  resync =  0.0% (258432/312438784) finish=382.4min speed=13601K/sec
+      bitmap: 3/3 pages [12KB], 65536KB chunk
+
+unused devices: &lt;none&gt;</code></pre></div></p>
+</li>
+<li>
+<p>创建文件系统并挂载:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~ # mkfs.ext4 -v -L array -E stride=64,stripe-width=128 /dev/md127
+CoreELEC:~ # udevil mount /dev/md127
+Mounted /dev/md127 at /media/array</code></pre></div></p>
+</li>
+<li>
+<p>重新装配创建过的阵列(上面提到的udev规则会在系统启停或者热插拔条件下自动处理):
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1 /dev/sdb1
+mdadm: /dev/md123 has been started with 2 drives.</code></pre></div></p>
+</li>
+<li>
+<p>测试邮件:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">mdadm --monitor --scan --test -1 --mail fooy84@gmail.com</code></pre></div></p>
+</li>
+<li>
+<p>模拟故障:</p>
+<ul>
+<li>
+<p>拔除任意一个挂在usb口的硬盘，通过samba继续网络读写文件,并没有什么问题, 同时配置的邮箱里收到警告邮件: DegradedArray Event on /dev/md127:&hellip;.</p>
+</li>
+<li>
+<p>这个拔除的硬盘可以用来单独启动一个raid设备,并且通过添加另外一个硬盘来继续复制.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1
+mdadm: /dev/md123 assembled from 1 drive - need all 2 to start it (use --run to insist).
+CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1 --run
+mdadm: /dev/md123 has been started with 1 drive (out of 2).</code></pre></div></p>
+</li>
+<li>
+<p>把故障(拔除)的硬盘重新加入到原来的raid，需要先停止当前raid设备,然后使用<code>--add</code>加入
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # udevil unmount /dev/md123
+udevil: success running umount as current user
+CoreELEC:~ # ./mdadm --stop /dev/md123
+mdadm: stopped /dev/md123
+CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sdb1 /dev/sda1
+mdadm: /dev/md123 has been started with 1 drive (out of 2).
+CoreELEC:~ # ./mdadm /dev/md123 --add /dev/sdb1
+mdadm: re-added /dev/sdb1
+CoreELEC:~ # cat /proc/mdstat
+Personalities : [raid0] [raid1] [raid10] [raid6] [raid5] [raid4]
+md123 : active raid10 sdb1[2] sda1[1]
+      312438784 blocks super 1.2 512K chunks 2 far-copies [2/1] [_U]
+      [====&gt;................]  recovery = 22.4% (70254656/312438784) finish=0.1min speed=35127328K/sec
+      bitmap: 2/3 pages [8KB], 65536KB chunk
+
+unused devices: &lt;none&gt;</code></pre></div></p>
+</li>
+<li>
+<p>实验可以看到，重新装配传入多个设备时，总是以未发生故障(被拔出)的分区来创建raid设备，同时需要显式的添加另一块数据可能不一致的分区来进行同步恢复,这样的设计也是合理。</p>
+</li>
+<li>
+<p>尝试用供电的USB hub接入第三块磁盘并添加到raid设备, 磁盘显示为Spare.</p>
+</li>
+<li>
+<p>最后还有一个推荐的数据保养功能，在cron中做一个<a href="https://wiki.archlinux.org/index.php/LVM_on_software_RAID#Scrubbing">scrubbing</a>任务也很有必要.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="参考">参考:</h4>
+<p><a href="https://en.wikipedia.org/wiki/Non-standard_RAID_levels#Linux_MD_RAID_10">raid10</a><br>
+<a href="https://serverfault.com/questions/77710/is-bit-rot-on-hard-drives-a-real-problem-what-can-be-done-about-it">bitrot</a><br>
+<a href="https://www.artembutusov.com/libreelec-raid-support/">LibreELEC RAID support</a><br>
+<a href="https://raid.wiki.kernel.org/index.php/A_guide_to_mdadm">A_guide_to_mdadm</a></p>
+			</div>
+
+			<div class="tags">
+				
+					
+						<ul class="flat">
+							
+							<li><a href="/tags/coreelec">CoreElec</a></li>
+							
+							<li><a href="/tags/linux">linux</a></li>
+							
+						</ul>
+					
+				
+			</div><div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'fooy';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the </a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div>2020  <a href="https://github.com/knadh/hugo-ink">Ink</a> theme on <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+</body>
+</html>

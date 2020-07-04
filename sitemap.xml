@@ -3,27 +3,57 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://fooy.github.io/</loc>
+    <lastmod>2020-06-30T00:00:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/posts/</loc>
+    <lastmod>2020-06-30T00:00:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/tags/</loc>
+    <lastmod>2020-06-30T00:00:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/tags/v2ray/</loc>
+    <lastmod>2020-06-30T00:00:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/posts/v2ray-reverse-proxy/</loc>
+    <lastmod>2020-06-30T00:00:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/tags/coreelec/</loc>
+    <lastmod>2020-06-30T00:00:02+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/tags/linux/</loc>
+    <lastmod>2020-06-30T00:00:02+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/posts/coreelec-raid10/</loc>
+    <lastmod>2020-06-30T00:00:02+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fooy.github.io/posts/n1-coreelec-install/</loc>
+    <lastmod>2020-06-30T00:00:01+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://fooy.github.io/tags/ffmpeg/</loc>
     <lastmod>2019-09-13T00:00:00+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://fooy.github.io/posts/ffmpeg-fast-mosaic-preview/</loc>
-    <lastmod>2019-09-13T00:00:00+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fooy.github.io/</loc>
-    <lastmod>2019-09-13T00:00:00+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fooy.github.io/posts/</loc>
-    <lastmod>2019-09-13T00:00:00+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fooy.github.io/tags/</loc>
     <lastmod>2019-09-13T00:00:00+08:00</lastmod>
   </url>
   

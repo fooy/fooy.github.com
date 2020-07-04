@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>使用v2ray反向代理配置家庭云桌面 - fy的技术杂碎</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta itemprop="name" content="使用v2ray反向代理配置家庭云桌面">
+<meta itemprop="description" content="">
+<meta itemprop="datePublished" content="2020-06-30T00:00:03&#43;08:00" />
+<meta itemprop="dateModified" content="2020-06-30T00:00:03&#43;08:00" />
+<meta itemprop="wordCount" content="282">
+
+
+
+<meta itemprop="keywords" content="v2ray," /><meta property="og:title" content="使用v2ray反向代理配置家庭云桌面" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://fooy.github.io/posts/v2ray-reverse-proxy/" />
+<meta property="article:published_time" content="2020-06-30T00:00:03+08:00" />
+<meta property="article:modified_time" content="2020-06-30T00:00:03+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="使用v2ray反向代理配置家庭云桌面"/>
+<meta name="twitter:description" content=""/>
+<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fooy.github.io/css/main.css" />
+
+        <link id="dark-scheme" rel="stylesheet" type="text/css" href="https://fooy.github.io/css/dark.css" />
+
+	
+		<script src="https://fooy.github.io/js/main.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper">
+		<div class="header">
+	
+	<h1 class="site-title"><a href="https://fooy.github.io/">fy的技术杂碎</a></h1>
+	<div class="site-description"><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav></div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post">
+			<div class="post-header">
+				
+					<div class="meta">
+						<div class="date">
+							<span class="day">30</span>
+							<span class="rest">Jun 2020</span>
+						</div>
+					</div>
+				
+				<div class="matter">
+					<h1 class="title">使用v2ray反向代理配置家庭云桌面</h1>
+				</div>
+			</div>
+					
+			<div class="markdown">
+				<p>翻看v2ray的配置教程发现了反向代理功能, 虽然对v2ray的强大功能还在理解深化中，当看到 <a href="https://guide.v2fly.org/app/reverse2.html">反向代理2</a>，我觉得这个功能真是酷炫，配置小火箭完全可以实现很顺滑的&quot;家庭云体验&rdquo;，立刻动手把官网的配置拷贝实验了一把.</p>
+<p>这种穿透+反向动态代理的功能用其它的软件比如<code>frp</code>也能实现类似的效果,这里我觉得v2ray也不弱，和小火箭强大的协议连接能力配合度很高，真正可以做到&quot;一键回城&rdquo;</p>
+<ol>
+<li>
+<p>首先服务端和穿透发起端的配置直接拷贝官方配置就可以了,VPS服务器尽量保证带宽和时延.</p>
+</li>
+<li>
+<p>在小火箭端创建一个新的连接，这里命名这个连接为HOME , 也就是负责访问家庭网络的连接（配置文件中的&quot;C&rdquo;）</p>
+</li>
+</ol>
+<p><img src="/images/reverse1.png" alt=""></p>
+<ol start="3">
+<li>
+<p>在小火箭的正在使用的配置文件中检查去除对家庭网段的旁路配置，也就是配置家庭网段的数据包走隧道中转，这里我的局域网段是192.168.1.x ,
+点击配置文件-编辑配置-通用部分，把&quot;跳过代理(http)&ldquo;和&quot;旁路TUN(tcp/ip)&ldquo;中覆盖到192.168.1.x的网段去掉,包括比如192.168.0.0/16
+<img src="/images/reverse3.png" alt=""></p>
+</li>
+<li>
+<p>同时编辑配置文件的规则部分，添加规则, 加入匹配家庭网段的IP-CIDR，并指示转发连接为新建的连接&quot;HOME&rdquo; ,这里PROXY 其实就是当前小火箭的默认连接，
+而HOME是家庭网段的连接, 可以看到小火箭是支持多个连接的嵌套转发的，可以定义非常丰富的规则，本篇的重点只是是把代理家庭网段的规则加入其中.
+<img src="/images/reverse2.png" alt=""></p>
+</li>
+<li>
+<p>在加入规则并且连接生效的情况下，iOS中常用的应用在移动连接环境下已经可以访问家庭的网络设备，举例说明:</p>
+</li>
+</ol>
+<ul>
+<li>nplayer已经可以浏览到家庭samba服务器的文件并且能够播放</li>
+<li>chrome可以访问家庭网盘的http文件服务器上的pdf</li>
+<li>vnc viewer可以连接到家庭的笔记本登录后可以打开IDE敲代码。。</li>
+</ul>
+<p>同时从上图三条规则可以直观看到小火箭灵活的配置能力，访问家庭的网络不影响正常的互联网访问.</p>
+<ol start="6">
+<li>一点不足是目前还没有找到有效的办法实现家庭设备的域名解析，好在局域网设备的IP地址一般不变，在小火箭规则中加入hosts映射即可.</li>
+</ol>
+<p>========================== 亲测有效的配置文件<br>
+服务端:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;reverse&#34;</span>:{  <span style="color:#960050;background-color:#1e0010">//这是</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">的反向代理设置，必须有下面的</span> <span style="color:#960050;background-color:#1e0010">portals</span> <span style="color:#960050;background-color:#1e0010">对象</span>
+    <span style="color:#f92672">&#34;portals&#34;</span>:[
+      {
+        <span style="color:#f92672">&#34;tag&#34;</span>:<span style="color:#e6db74">&#34;portal&#34;</span>,
+        <span style="color:#f92672">&#34;domain&#34;</span>:<span style="color:#e6db74">&#34;private.cloud.com&#34;</span>        <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">必须和上面</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">设定的域名一样</span>
+      }
+    ]
+  },
+  <span style="color:#f92672">&#34;inbounds&#34;</span>:[
+    {
+      <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">接受</span> <span style="color:#960050;background-color:#1e0010">C</span> <span style="color:#960050;background-color:#1e0010">的inbound</span>
+      <span style="color:#f92672">&#34;tag&#34;</span>:<span style="color:#e6db74">&#34;tunnel&#34;</span>, <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">标签，路由中用到</span>
+      <span style="color:#f92672">&#34;port&#34;</span>:<span style="color:#ae81ff">443</span>,
+      <span style="color:#f92672">&#34;protocol&#34;</span>:<span style="color:#e6db74">&#34;vmess&#34;</span>,
+      <span style="color:#f92672">&#34;settings&#34;</span>:{
+        <span style="color:#f92672">&#34;clients&#34;</span>:[
+          {
+            <span style="color:#f92672">&#34;id&#34;</span>:<span style="color:#e6db74">&#34;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&#34;</span>,
+            <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;auto&#34;</span>,
+            <span style="color:#f92672">&#34;alterId&#34;</span>:<span style="color:#ae81ff">64</span>
+          }
+        ]
+      },
+      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;ws&#34;</span>,
+	    <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
+        <span style="color:#f92672">&#34;wsSettings&#34;</span>: {
+	      <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/vms&#34;</span>
+        }
+      }
+    },
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">另一个</span> <span style="color:#960050;background-color:#1e0010">inbound，接受</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">主动发起的请求</span>
+    {
+      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;interconn&#34;</span>,<span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">标签，路由中用到</span>
+      <span style="color:#f92672">&#34;port&#34;</span>:<span style="color:#ae81ff">8993</span>,
+      <span style="color:#f92672">&#34;protocol&#34;</span>:<span style="color:#e6db74">&#34;vmess&#34;</span>,
+      <span style="color:#f92672">&#34;settings&#34;</span>:{
+        <span style="color:#f92672">&#34;clients&#34;</span>:[
+          {
+            <span style="color:#f92672">&#34;id&#34;</span>:<span style="color:#e6db74">&#34;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&#34;</span>,
+            <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;auto&#34;</span>,
+            <span style="color:#f92672">&#34;alterId&#34;</span>:<span style="color:#ae81ff">64</span>
+          }
+        ]
+      },
+      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;ws&#34;</span>,
+	    <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
+        <span style="color:#f92672">&#34;wsSettings&#34;</span>: {
+	      <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/vms&#34;</span>
+        }
+      }
+    }
+  ],
+  <span style="color:#f92672">&#34;routing&#34;</span>:{
+    <span style="color:#f92672">&#34;rules&#34;</span>:[
+      {  <span style="color:#960050;background-color:#1e0010">//路由规则，接收</span> <span style="color:#960050;background-color:#1e0010">C</span> <span style="color:#960050;background-color:#1e0010">的请求后发给</span> <span style="color:#960050;background-color:#1e0010">A</span>
+        <span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;field&#34;</span>,
+        <span style="color:#f92672">&#34;inboundTag&#34;</span>:[
+          <span style="color:#e6db74">&#34;interconn&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;outboundTag&#34;</span>:<span style="color:#e6db74">&#34;portal&#34;</span>
+      },
+      {  <span style="color:#960050;background-color:#1e0010">//路由规则，让</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">能够识别这是</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">主动发起的反向代理连接</span>
+        <span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;field&#34;</span>,
+        <span style="color:#f92672">&#34;inboundTag&#34;</span>:[
+          <span style="color:#e6db74">&#34;tunnel&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;domain&#34;</span>:[
+          <span style="color:#e6db74">&#34;full:private.cloud.com&#34;</span> <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">将指定域名的请求发给</span> <span style="color:#960050;background-color:#1e0010">A，如果希望将全部流量发给</span> <span style="color:#960050;background-color:#1e0010">A，这里可以不设置域名规则。</span>
+        ],
+        <span style="color:#f92672">&#34;outboundTag&#34;</span>:<span style="color:#e6db74">&#34;portal&#34;</span>
+      }
+    ]
+  },
+  <span style="color:#f92672">&#34;log&#34;</span>:{
+    <span style="color:#f92672">&#34;access&#34;</span>: <span style="color:#e6db74">&#34;/tmp/v2ray.access.log&#34;</span>,
+    <span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;/tmp/v2ray.error.log&#34;</span>,
+    <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;info&#34;</span>
+  }
+}</code></pre></div></p>
+<p>家庭端:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;reverse&#34;</span>:{
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">这是</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">的反向代理设置，必须有下面的</span> <span style="color:#960050;background-color:#1e0010">bridges</span> <span style="color:#960050;background-color:#1e0010">对象</span>
+    <span style="color:#f92672">&#34;bridges&#34;</span>:[
+      {
+        <span style="color:#f92672">&#34;tag&#34;</span>:<span style="color:#e6db74">&#34;bridge&#34;</span>, <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">关于</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">的反向代理标签，在路由中会用到</span>
+        <span style="color:#f92672">&#34;domain&#34;</span>:<span style="color:#e6db74">&#34;private.cloud.com&#34;</span> <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">和</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">反向代理通信的域名，可以自己取一个，可以不是自己购买的域名，但必须跟下面</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">中的</span> <span style="color:#960050;background-color:#1e0010">reverse</span> <span style="color:#960050;background-color:#1e0010">配置的域名一致</span>
+      }
+    ]
+  },
+  <span style="color:#f92672">&#34;outbounds&#34;</span>: [
+    {
+      <span style="color:#960050;background-color:#1e0010">//A连接B的outbound</span>
+      <span style="color:#f92672">&#34;tag&#34;</span>:<span style="color:#e6db74">&#34;tunnel&#34;</span>, <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">连接</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">的</span> <span style="color:#960050;background-color:#1e0010">outbound</span> <span style="color:#960050;background-color:#1e0010">的标签，在路由中会用到</span>
+      <span style="color:#f92672">&#34;protocol&#34;</span>:<span style="color:#e6db74">&#34;vmess&#34;</span>,
+      <span style="color:#f92672">&#34;settings&#34;</span>:{
+        <span style="color:#f92672">&#34;vnext&#34;</span>:[
+          {
+            <span style="color:#f92672">&#34;address&#34;</span>:<span style="color:#e6db74">&#34;my-server.com&#34;</span>, <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">地址，IP</span> <span style="color:#960050;background-color:#1e0010">或</span> <span style="color:#960050;background-color:#1e0010">实际的域名</span>
+            <span style="color:#f92672">&#34;port&#34;</span>:<span style="color:#ae81ff">8993</span>,
+            <span style="color:#f92672">&#34;users&#34;</span>:[
+              {
+                <span style="color:#f92672">&#34;id&#34;</span>:<span style="color:#e6db74">&#34;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&#34;</span>,
+                <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;auto&#34;</span>,
+                <span style="color:#f92672">&#34;alterId&#34;</span>:<span style="color:#ae81ff">64</span>
+              }
+            ]
+          }
+        ]
+      },
+      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;ws&#34;</span>,
+        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
+        <span style="color:#f92672">&#34;wsSettings&#34;</span>: {
+          <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/vms&#34;</span>
+        }
+      }
+    },
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">另一个</span> <span style="color:#960050;background-color:#1e0010">outbound，最终连接私有网盘</span>
+    {
+      <span style="color:#f92672">&#34;protocol&#34;</span>:<span style="color:#e6db74">&#34;freedom&#34;</span>,
+      <span style="color:#f92672">&#34;settings&#34;</span>:{
+      },
+      <span style="color:#f92672">&#34;tag&#34;</span>:<span style="color:#e6db74">&#34;out&#34;</span>
+    }
+  ],
+  <span style="color:#f92672">&#34;routing&#34;</span>:{
+    <span style="color:#f92672">&#34;rules&#34;</span>:[
+      {
+        <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">配置</span> <span style="color:#960050;background-color:#1e0010">A</span> <span style="color:#960050;background-color:#1e0010">主动连接</span> <span style="color:#960050;background-color:#1e0010">B</span> <span style="color:#960050;background-color:#1e0010">的路由规则</span>
+        <span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;field&#34;</span>,
+        <span style="color:#f92672">&#34;inboundTag&#34;</span>:[
+          <span style="color:#e6db74">&#34;bridge&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;domain&#34;</span>:[
+          <span style="color:#e6db74">&#34;full:private.cloud.com&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;outboundTag&#34;</span>:<span style="color:#e6db74">&#34;tunnel&#34;</span>
+      },
+      {
+        <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">反向连接访问私有网盘的规则</span>
+        <span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;field&#34;</span>,
+        <span style="color:#f92672">&#34;inboundTag&#34;</span>:[
+          <span style="color:#e6db74">&#34;bridge&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;outboundTag&#34;</span>:<span style="color:#e6db74">&#34;out&#34;</span>
+      }
+    ]
+  }
+  ,
+  <span style="color:#f92672">&#34;log&#34;</span>:{
+    <span style="color:#f92672">&#34;access&#34;</span>: <span style="color:#e6db74">&#34;/tmp/v2ray.access.log&#34;</span>,
+    <span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;/tmp/v2ray.error.log&#34;</span>,
+    <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;debug&#34;</span>
+  }
+}</code></pre></div></p>
+			</div>
+
+			<div class="tags">
+				
+					
+						<ul class="flat">
+							
+							<li><a href="/tags/v2ray">v2ray</a></li>
+							
+						</ul>
+					
+				
+			</div><div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'fooy';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the </a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div>2020  <a href="https://github.com/knadh/hugo-ink">Ink</a> theme on <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+</body>
+</html>
