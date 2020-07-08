@@ -7,7 +7,7 @@
 <meta itemprop="description" content="">
 <meta itemprop="datePublished" content="2020-06-30T00:00:02&#43;08:00" />
 <meta itemprop="dateModified" content="2020-06-30T00:00:02&#43;08:00" />
-<meta itemprop="wordCount" content="431">
+<meta itemprop="wordCount" content="430">
 
 
 
@@ -79,11 +79,11 @@
 			</div>
 					
 			<div class="markdown">
-				<p>最近打算使用N1+CoreElec做长期网盘，我有两块10年左右的硬盘闲置许久，适合接上N1做存储，这样也算是和N1百元盒子物尽其用的精神十分契合.
-但这两块硬盘出厂确实有些年头, 考虑到数据面临的&quot;崩盘&quot;风险，正好可以利用这个机会折腾下Linux的Soft RAID.</p>
-<p>N1盒子上仅有两个USB接口, 查资料简单评估觉得适合做RAID1, 能够承担一个硬盘故障的风险，看到网络上对RAID的可靠性有一定质疑,
-以及对<a href="https://serverfault.com/questions/77710/is-bit-rot-on-hard-drives-a-real-problem-what-can-be-done-about-it">bitrot</a>的讨论，
-总体感觉个人简单使用还是能提供一定的保护的,决定实践一把让这两块硬盘接收时间的检验.</p>
+				<p>最近打算使用N1+CoreElec做长期网盘，我有两块10年左右的硬盘闲置许久，适合接上N1做存储，这样也算是和N1这种百元盒子物尽其用的精神十分契合.
+但这两块硬盘出厂确实有些年头, 考虑到数据面临的&quot;崩盘&quot;风险，正好可以利用这个机会折腾下Linux的软RAID.</p>
+<p>N1盒子上仅有两个USB接口, 查资料简单评估觉得适合做RAID1, 能够承担一个硬盘故障的风险，看到网络上对RAID的可靠性有一些讨论质疑,
+据说软RAID在企业应用是不应该被考虑的，无法克服稍微海量数据条件下<a href="https://serverfault.com/questions/77710/is-bit-rot-on-hard-drives-a-real-problem-what-can-be-done-about-it">bitrot</a>这种増熵现象.
+但是个人玩票还是能够一试的,于是决定实践一把让这两块硬盘接收时间检验.</p>
 <h4 id="编译">编译:</h4>
 <p>CoreElec的编译过程在<a href="../n1-coreelec-install/">上篇</a>有所提及，这里只列出RAID相关的编译配置部分.</p>
 <ol>
@@ -186,7 +186,7 @@ systemctl restart mdmonitor.service</code></pre></div></p>
 <ul>
 <li>
 <p>创建raid1(far2):
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~ # ./mdadm --create --verbose --level=10 --metadata=1.2 --chunk=512 --raid-devices=2 --layout=f2 /dev/md/MyRAID10Array /dev/sda1 /dev/sdb1
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">CoreELEC:~ # mdadm --create --verbose --level=10 --metadata=1.2 --chunk=512 --raid-devices=2 --layout=f2 /dev/md/MyRAID10Array /dev/sda1 /dev/sdb1
 CoreELEC:~ # cat /proc/mdstat
 Personalities : [raid0] [raid1] [raid10] [raid6] [raid5] [raid4]
 md127 : active raid10 sdb1[1] sda1[0]
@@ -204,7 +204,7 @@ Mounted /dev/md127 at /media/array</code></pre></div></p>
 </li>
 <li>
 <p>重新装配创建过的阵列(上面提到的udev规则会在系统启停或者热插拔条件下自动处理):
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1 /dev/sdb1
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # mdadm --assemble  /dev/md123 /dev/sda1 /dev/sdb1
 mdadm: /dev/md123 has been started with 2 drives.</code></pre></div></p>
 </li>
 <li>
@@ -219,20 +219,20 @@ mdadm: /dev/md123 has been started with 2 drives.</code></pre></div></p>
 </li>
 <li>
 <p>这个拔除的硬盘可以用来单独启动一个raid设备,并且通过添加另外一个硬盘来继续复制.
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # mdadm --assemble  /dev/md123 /dev/sda1
 mdadm: /dev/md123 assembled from 1 drive - need all 2 to start it (use --run to insist).
-CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sda1 --run
+CoreELEC:~ # mdadm --assemble  /dev/md123 /dev/sda1 --run
 mdadm: /dev/md123 has been started with 1 drive (out of 2).</code></pre></div></p>
 </li>
 <li>
 <p>把故障(拔除)的硬盘重新加入到原来的raid，需要先停止当前raid设备,然后使用<code>--add</code>加入
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">CoreELEC:~ # udevil unmount /dev/md123
 udevil: success running umount as current user
-CoreELEC:~ # ./mdadm --stop /dev/md123
+CoreELEC:~ # mdadm --stop /dev/md123
 mdadm: stopped /dev/md123
-CoreELEC:~ # ./mdadm --assemble  /dev/md123 /dev/sdb1 /dev/sda1
+CoreELEC:~ # mdadm --assemble  /dev/md123 /dev/sdb1 /dev/sda1
 mdadm: /dev/md123 has been started with 1 drive (out of 2).
-CoreELEC:~ # ./mdadm /dev/md123 --add /dev/sdb1
+CoreELEC:~ # mdadm /dev/md123 --add /dev/sdb1
 mdadm: re-added /dev/sdb1
 CoreELEC:~ # cat /proc/mdstat
 Personalities : [raid0] [raid1] [raid10] [raid6] [raid5] [raid4]
@@ -247,7 +247,7 @@ unused devices: &lt;none&gt;</code></pre></div></p>
 <p>实验可以看到，重新装配传入多个设备时，总是以未发生故障(被拔出)的分区来创建raid设备，同时需要显式的添加另一块数据可能不一致的分区来进行同步恢复,这样的设计也是合理。</p>
 </li>
 <li>
-<p>尝试用供电的USB hub接入第三块磁盘并添加到raid设备, 磁盘显示为Spare.</p>
+<p>尝试用供电的USB hub接入第三块磁盘并添加到raid设备, 新加入磁盘状态显示为<a href="https://raid.wiki.kernel.org/index.php/RAID_setup#RAID-1">spare</a>.</p>
 </li>
 <li>
 <p>最后还有一个推荐的数据保养功能，在cron中做一个<a href="https://wiki.archlinux.org/index.php/LVM_on_software_RAID#Scrubbing">scrubbing</a>任务也很有必要.</p>
